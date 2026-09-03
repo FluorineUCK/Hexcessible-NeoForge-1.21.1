@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import at.petrak.hexcasting.api.HexAPI;
@@ -16,8 +17,6 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import dev.tizu.hexcessible.Hexcessible;
 import dev.tizu.hexcessible.Utils;
 import dev.tizu.hexcessible.smartsig.SmartSig.SmartSigRegistry;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 public class PatternEntries {
     public static final PatternEntries INSTANCE = new PatternEntries();
@@ -35,23 +34,23 @@ public class PatternEntries {
         entries.clear();
         perWorld.clear();
 
-        IXplatAbstractions.INSTANCE.getActionRegistry().getKeys().forEach(key -> {        
+        IXplatAbstractions.INSTANCE.getActionRegistry().registryKeySet().forEach(key -> {        
             var item = IXplatAbstractions.INSTANCE.getActionRegistry().get(key);
-            var entry = IXplatAbstractions.INSTANCE.getActionRegistry().getEntry(key);
+            var entry = IXplatAbstractions.INSTANCE.getActionRegistry().getHolder(key);
 
-            var id = key.getValue();
+            var id = key.location();
             if (id == null) {
                 Hexcessible.LOGGER.error("Failed to get identifier for action {}", key);
                 return;
             }
 
-            var name = Text.translatable(HexAPI.instance().getActionI18nKey(key)).getString();
+            var name = Component.translatable(HexAPI.instance().getActionI18nKey(key)).getString();
             Supplier<Boolean> checkLock = () -> BookEntries.INSTANCE.isLocked(id.toString());
             var dir = item.prototype().getStartDir();
             var sig = List.of(item.prototype().getAngles());
             var impls = BookEntries.INSTANCE.get(id);
 
-            if (entry.get().isIn(HexTags.Actions.PER_WORLD_PATTERN))
+            if (entry.get().is(HexTags.Actions.PER_WORLD_PATTERN))
                 perWorld.add(id.toString());
 
             entries.add(new Entry(id.toString(), name, checkLock, dir, sig, impls, 0));
@@ -65,7 +64,7 @@ public class PatternEntries {
             var knownEntry = p.split(" ");
             if (knownEntry.length != 3 || !knownEntry[0].equals(Utils.getWorldContext()))
                 return;
-            var id = Identifier.tryParse(knownEntry[1]);
+            var id = ResourceLocation.tryParse(knownEntry[1]);
             if (id != null)
                 perWorldCache.put(id.toString(), Utils.angle(knownEntry[2]));
         });

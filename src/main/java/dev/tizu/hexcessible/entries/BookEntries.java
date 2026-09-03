@@ -6,15 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.gson.JsonSyntaxException;
 
 import dev.tizu.hexcessible.Hexcessible;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
 import vazkii.patchouli.common.book.BookRegistry;
 
 /**
@@ -23,7 +22,7 @@ import vazkii.patchouli.common.book.BookRegistry;
  */
 public class BookEntries {
 
-    public static final Identifier BOOKID = Identifier.of("hexcasting", "thehexbook");
+    public static final ResourceLocation BOOKID = ResourceLocation.fromNamespaceAndPath("hexcasting", "thehexbook");
     public static final BookEntries INSTANCE = new BookEntries();
 
     private Map<String, List<Entry>> entries = Map.of();
@@ -49,15 +48,15 @@ public class BookEntries {
                 if (root == null)
                     return;
                 try {
-                    var type = JsonHelper.getString(root, "type");
+                    var type = GsonHelper.getAsString(root, "type");
                     switch (type) {
                         case "hexcasting:pattern":
-                            var id = JsonHelper.getString(root, "op_id");
+                            var id = GsonHelper.getAsString(root, "op_id");
                             if (!locked.containsKey(id))
                                 locked.put(id, entry::isLocked);
-                            var desc = JsonHelper.getString(root, "text", "");
-                            var in = JsonHelper.getString(root, "input", "");
-                            var out = JsonHelper.getString(root, "output", "");
+                            var desc = GsonHelper.getAsString(root, "text", "");
+                            var in = GsonHelper.getAsString(root, "input", "");
+                            var out = GsonHelper.getAsString(root, "output", "");
                             entries.computeIfAbsent(id, k -> new ArrayList<>())
                                     .add(new Entry(id, entryid, desc, in, out,
                                             pagei.getAndIncrement()));
@@ -72,20 +71,20 @@ public class BookEntries {
         this.locked = locked;
     }
 
-    public static record Entry(String id, @Nullable Identifier entryid,
+    public static record Entry(String id, @Nullable ResourceLocation entryid,
             String desc, String in, String out, int page) {
         public String getArgs() {
             return (in + " -> " + out).strip();
         }
 
         public String getDesc() {
-            return Text.translatable(desc).getString()
+            return Component.translatable(desc).getString()
                     .replaceAll("\\$\\([^)]*\\)|/\\$", "")
                     .replaceAll("[\\s^]_", " ");
         }
     }
 
-    public List<Entry> get(Identifier id) {
+    public List<Entry> get(ResourceLocation id) {
         return entries.getOrDefault(id.toString(), List.of());
     }
 

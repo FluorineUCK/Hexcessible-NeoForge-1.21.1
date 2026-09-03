@@ -2,13 +2,12 @@ package dev.tizu.hexcessible;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.storage.LevelResource;
 import at.petrak.hexcasting.api.casting.math.HexAngle;
 import at.petrak.hexcasting.api.casting.math.HexCoord;
 import at.petrak.hexcasting.api.casting.math.HexDir;
 import at.petrak.hexcasting.api.casting.math.HexPattern;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.WorldSavePath;
 
 public class Utils {
     private Utils() {
@@ -111,12 +110,12 @@ public class Utils {
     private static final String WORLD_CONTEXT_RGX = "[^a-zA-Z0-9]";
 
     public static String getWorldContext() {
-        var worldSolo = MinecraftClient.getInstance().getServer();
+        var worldSolo = Minecraft.getInstance().getSingleplayerServer();
         if (worldSolo != null)
-            return worldSolo.getSavePath(WorldSavePath.ROOT).normalize()
+            return worldSolo.getWorldPath(LevelResource.ROOT).normalize()
                     .getFileName().toString().replaceAll(WORLD_CONTEXT_RGX, "_");
 
-        var worldMulti = MinecraftClient.getInstance().getCurrentServerEntry();
+        var worldMulti = Minecraft.getInstance().getCurrentServer();
         if (worldMulti != null)
             return "multiplayer__" + worldMulti.name.replaceAll(WORLD_CONTEXT_RGX, "_");
 

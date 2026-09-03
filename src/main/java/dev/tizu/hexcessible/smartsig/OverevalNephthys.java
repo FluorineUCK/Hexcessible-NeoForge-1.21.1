@@ -9,14 +9,14 @@ import at.petrak.hexcasting.api.casting.math.HexDir;
 import dev.tizu.hexcessible.Utils;
 import dev.tizu.hexcessible.entries.BookEntries;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.text.Text;
+import net.neoforged.fml.ModList;
+import net.minecraft.network.chat.Component;
 
 public class OverevalNephthys implements SmartSig.Conditional {
 
     @Override
     public boolean enabled() {
-        return FabricLoader.getInstance().isModLoaded("overevaluate");
+        return ModList.get().isLoaded("overevaluate");
     }
 
     @Override
@@ -54,8 +54,8 @@ public class OverevalNephthys implements SmartSig.Conditional {
             patternStr.append("eq".charAt(i % 2));
 
         var angles = Utils.angle(patternStr.toString());
-        var i18nkey = Text.translatable("hexcasting.special.overevaluate:nephthys", depth).getString();
-        var desc = Text.translatable("overevaluate.page.nephthys.summary").getString();
+        var i18nkey = Component.translatable("hexcasting.special.overevaluate:nephthys", depth).getString();
+        var desc = Component.translatable("overevaluate.page.nephthys.summary").getString();
 
         var in = new StringBuilder();
         var out = new StringBuilder();

@@ -9,14 +9,14 @@ import at.petrak.hexcasting.api.casting.math.HexDir;
 import dev.tizu.hexcessible.Utils;
 import dev.tizu.hexcessible.entries.BookEntries;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.text.Text;
+import net.neoforged.fml.ModList;
+import net.minecraft.network.chat.Component;
 
 public class HexThingsIntrojection implements SmartSig.Conditional {
 
     @Override
     public boolean enabled() {
-        return FabricLoader.getInstance().isModLoaded("hexthings");
+        return ModList.get().isLoaded("hexthings");
     }
 
     public static final List<PatternEntries.Entry> ALL = List.of(
@@ -25,8 +25,8 @@ public class HexThingsIntrojection implements SmartSig.Conditional {
     private static PatternEntries.Entry make(String id, HexDir dir, String sig,
             String desc) {
         var doc = new BookEntries.Entry("hexcessible:" + id, null,
-                Text.translatable(desc).getString(), "", "", 0);
-        var name = Text.translatable("hexcasting.action.hexthings:" + id)
+                Component.translatable(desc).getString(), "", "", 0);
+        var name = Component.translatable("hexcasting.action.hexthings:" + id)
                 .getString();
         return new PatternEntries.Entry("hexcessible:" + id, name,
                 () -> false, dir, List.of(Utils.angle(sig)), List.of(doc), 0);

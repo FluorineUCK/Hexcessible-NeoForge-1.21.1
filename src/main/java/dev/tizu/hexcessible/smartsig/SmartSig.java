@@ -30,14 +30,26 @@ public interface SmartSig {
 
         private static final List<SmartSig> REGISTRY = new ArrayList<>();
 
-        static void register(SmartSig sig) {
+        /**
+         * Registers an additional signature provider.
+         *
+         * <p>This is public so optional addons can contribute signatures without
+         * copying classes into Hexcessible's package or using reflection.</p>
+         */
+        public static void register(SmartSig sig) {
             var name = sig.getClass().getSimpleName();
             if (sig instanceof Conditional cond && !cond.enabled()) {
                 Hexcessible.LOGGER.warn("SmartSig requirements not met: {}", name);
                 return;
             }
+            if (REGISTRY.contains(sig))
+                return;
             Hexcessible.LOGGER.info("Registered SmartSig: {}", name);
             REGISTRY.add(sig);
+        }
+
+        public static boolean isRegistered(SmartSig sig) {
+            return REGISTRY.contains(sig);
         }
 
         public static List<PatternEntries.Entry> get(String query) {

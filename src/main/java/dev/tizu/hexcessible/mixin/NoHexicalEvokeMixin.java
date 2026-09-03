@@ -1,7 +1,8 @@
 package dev.tizu.hexcessible.mixin;
 
 import java.util.List;
-
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -12,28 +13,26 @@ import at.petrak.hexcasting.client.gui.GuiSpellcasting;
 import dev.tizu.hexcessible.Hexcessible;
 import dev.tizu.hexcessible.accessor.DrawStateMixinAccessor;
 import dev.tizu.hexcessible.drawstate.Idling;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
 
-@Mixin(KeyBinding.class)
+@Mixin(KeyMapping.class)
 public class NoHexicalEvokeMixin {
     @Unique
     private static final List<String> DISALLOWED = List.of(
             "key.hexical.evoke", "key.hexical.telepathy");
 
     // https://github.com/miyucomics/hexical/blob/main/src/client/java/miyucomics/hexical/inits/HexicalKeybinds.kt
-    @Inject(method = "setPressed", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "setDown", at = @At("HEAD"), cancellable = true)
     private void blockPressedWhileCasting(boolean pressed, CallbackInfo ci) {
         if (!Hexcessible.cfg().noHexicalEvoke)
             return;
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (!(client.currentScreen instanceof GuiSpellcasting castui))
+        Minecraft client = Minecraft.getInstance();
+        if (!(client.screen instanceof GuiSpellcasting castui))
             return;
         var accessor = (DrawStateMixinAccessor) (Object) castui;
         if (accessor.state() instanceof Idling)
             return;
-        KeyBinding self = (KeyBinding) (Object) this;
-        String id = self.getTranslationKey();
+        KeyMapping self = (KeyMapping) (Object) this;
+        String id = self.getName();
         if (DISALLOWED.contains(id) && pressed)
             ci.cancel();
     }

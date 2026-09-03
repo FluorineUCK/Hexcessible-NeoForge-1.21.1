@@ -2,11 +2,10 @@ package dev.tizu.hexcessible.drawstate;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import net.minecraft.client.gui.GuiGraphics;
 import dev.tizu.hexcessible.Hexcessible;
 import dev.tizu.hexcessible.accessor.CastRef;
 import dev.tizu.hexcessible.accessor.CastingInterfaceAccessor.State;
-import net.minecraft.client.gui.DrawContext;
 
 public final class MouseDrawing extends DrawState {
 
@@ -15,7 +14,7 @@ public final class MouseDrawing extends DrawState {
     }
 
     @Override
-    public void onRender(DrawContext ctx, int mx, int my) {
+    public void onRender(GuiGraphics ctx, int mx, int my) {
         var internals = castref.internals();
         if (internals.getState() != State.DRAWING)
             return;

@@ -22,7 +22,7 @@ public class ShowAllDotsMixin {
         return 3;
     }
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;clamp(FFF)F"), method = "render", index = 1)
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;clamp(FFF)F"), method = "render", index = 1)
     public float scaledDist(float scaledDist) {
         return Hexcessible.cfg().showAllDots ? 0.5f : 0f;
     }

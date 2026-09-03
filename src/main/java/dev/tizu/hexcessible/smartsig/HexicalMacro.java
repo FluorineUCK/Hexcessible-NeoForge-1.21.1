@@ -2,7 +2,6 @@ package dev.tizu.hexcessible.smartsig;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
@@ -11,18 +10,19 @@ import at.petrak.hexcasting.api.casting.math.HexAngle;
 import at.petrak.hexcasting.api.casting.math.HexDir;
 import dev.tizu.hexcessible.Utils;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.neoforged.fml.ModList;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomData;
 
 public class HexicalMacro implements SmartSig.Conditional {
 
     @Override
     public boolean enabled() {
-        return FabricLoader.getInstance().isModLoaded("hexical");
+        return ModList.get().isLoaded("hexical");
     }
 
     @Override
@@ -41,27 +41,28 @@ public class HexicalMacro implements SmartSig.Conditional {
     }
 
     private List<String> getAllMacros() {
-        var player = MinecraftClient.getInstance().player;
+        var player = Minecraft.getInstance().player;
+        if (player == null)
+            return List.of();
+
         var inventory = player.getInventory();
 
-        var targetItem = Registries.ITEM.get(Identifier.of("hexical", "grimoire"));
-        var stacks = Stream.of(inventory.main, inventory.offHand, inventory.armor,
-                player.getEnderChestInventory().heldStacks)
+        var targetItem = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("hexical", "grimoire"));
+        return Stream.of(inventory.items, inventory.offhand, inventory.armor,
+                player.getEnderChestInventory().getItems())
                 .flatMap(Collection::stream)
-                .filter(stack -> stack.isOf(targetItem))
+                .filter(stack -> stack.is(targetItem))
+                .map(stack -> stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag())
+                .filter(root -> root.contains("expansions"))
+                .map(root -> root.getCompound("expansions"))
+                .flatMap(expansions -> expansions.getAllKeys().stream())
+                .distinct()
+                .sorted()
                 .toList();
-        // return stacks.stream()
-        //         .map(ItemStack::getNbt)
-        //         .filter(Objects::nonNull)
-        //         .map(nbt -> nbt.getCompound("expansions"))
-        //         .flatMap(nbt -> nbt.getKeys().stream())
-        //         .toList();
-        // TODO: Hexical is not ported yet from what I can tell
-        return List.of();
     }
 
     private PatternEntries.Entry getFor(List<HexAngle> sig) {
-        var i18nkey = Text.translatable("hexcessible.smartsig.grimoire").getString();
+        var i18nkey = Component.translatable("hexcessible.smartsig.grimoire").getString();
         return new PatternEntries.Entry("hexical:grimoire_macro/" + Utils.angle(sig),
                 i18nkey, () -> false, HexDir.EAST, List.of(sig), List.of(), 0);
     }

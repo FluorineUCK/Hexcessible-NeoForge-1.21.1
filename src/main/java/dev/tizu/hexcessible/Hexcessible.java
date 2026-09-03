@@ -14,6 +14,11 @@ public class Hexcessible {
 
 	private static HexcessibleConfig cfg = HexcessibleConfig.get();
 
+	public static void init() {
+		LOGGER.info("Initializing Hexcessible");
+		cfg();
+	}
+
 	public static HexcessibleConfig cfg() {
 		return cfg;
 	}

@@ -7,8 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import at.petrak.hexcasting.client.gui.GuiSpellcasting;
 import dev.tizu.hexcessible.accessor.CastRef;
-import kotlin.Pair;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphics;
 
 public sealed class DrawState
         permits Idling, MouseDrawing, KeyboardDrawing, AutoCompleting, AliasChanging {
@@ -21,7 +20,7 @@ public sealed class DrawState
         this.castref = castref;
     }
 
-    public void onRender(DrawContext ctx, int mx, int my) {
+    public void onRender(GuiGraphics ctx, int mx, int my) {
         // no-op
     }
 
@@ -104,7 +103,4 @@ public sealed class DrawState
         return current.wantsExit;
     }
 
-    public Pair<List<String>, List<String>> getStackMod() {
-        return new Pair<>(List.of(), List.of());
-    }
 }

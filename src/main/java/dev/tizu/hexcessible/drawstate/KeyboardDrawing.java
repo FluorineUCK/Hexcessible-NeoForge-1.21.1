@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -18,11 +22,6 @@ import dev.tizu.hexcessible.HexcessibleConfig;
 import dev.tizu.hexcessible.Utils;
 import dev.tizu.hexcessible.accessor.CastRef;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Vec2f;
 
 public final class KeyboardDrawing extends DrawState {
     public static final List<Character> validSig = List.of(
@@ -105,7 +104,7 @@ public final class KeyboardDrawing extends DrawState {
     }
 
     @Override
-    public void onRender(DrawContext ctx, int mx, int my) {
+    public void onRender(GuiGraphics ctx, int mx, int my) {
         if (sig.isEmpty())
             requestExit();
         renderPattern(ctx);
@@ -197,7 +196,7 @@ public final class KeyboardDrawing extends DrawState {
         recalculateNewAll();
     }
 
-    public void renderPattern(DrawContext ctx) {
+    public void renderPattern(GuiGraphics ctx) {
         if (Hexcessible.cfg().keyboardDraw.ghost)
             renderPattern(ctx, origin, originDir, sig, COLOR3, COLOR4);
         if (start != null)
@@ -207,21 +206,21 @@ public final class KeyboardDrawing extends DrawState {
             return;
         if (start != null)
             drawLine(ctx, origin, start);
-        var mat = ctx.getMatrices().peek().getPositionMatrix();
+        var mat = ctx.pose().last().pose();
         if (start != null)
             RenderLib.drawSpot(mat, castref.coordToPx(start), 6f, 0f, 0f, 1f, 1f);
         RenderLib.drawSpot(mat, castref.coordToPx(origin), 6f, 0f, 1f, 0f, 1f);
     }
 
-    public void renderPattern(DrawContext ctx, HexCoord start, HexDir startDir,
+    public void renderPattern(GuiGraphics ctx, HexCoord start, HexDir startDir,
             List<HexAngle> sig, int color1, int color2) {
         if (start == null || startDir == null)
             return;
-        var mat = ctx.getMatrices().peek().getPositionMatrix();
+        var mat = ctx.pose().last().pose();
         var pat = new HexPattern(startDir, sig);
         var duplicates = RenderLib.findDupIndices(pat.positions());
 
-        var points = new ArrayList<Vec2f>();
+        var points = new ArrayList<Vec2>();
         for (var c : pat.positions())
             points.add(castref.coordToPx(new HexCoord(
                     c.getQ() + start.getQ(),
@@ -231,10 +230,10 @@ public final class KeyboardDrawing extends DrawState {
                 color2, 0.1f, RenderLib.DEFAULT_READABILITY_OFFSET, 1f, 0);
     }
 
-    private void renderNextPointTooltips(DrawContext ctx) {
+    private void renderNextPointTooltips(GuiGraphics ctx) {
         if (end == null || endDir == null)
             return;
-        var tr = MinecraftClient.getInstance().textRenderer;
+        var tr = Minecraft.getInstance().font;
         var endpx = castref.coordToPx(end);
         for (var angle : HexAngle.values()) {
             var pos = end.plus(endDir.rotatedBy(angle));
@@ -247,7 +246,7 @@ public final class KeyboardDrawing extends DrawState {
             var distance = Math.sqrt(dx * dx + dy * dy);
             var targetX = endpx.x + (dx / distance) * 20;
             var targetY = endpx.y + (dy / distance) * 20;
-            ctx.drawCenteredTextWithShadow(tr, Text.literal(charstr),
+            ctx.drawCenteredString(tr, Component.literal(charstr),
                     (int) targetX - 1, (int) targetY - 5, 0xff_A8A8A8);
         }
     }
@@ -259,7 +258,7 @@ public final class KeyboardDrawing extends DrawState {
         return castref.isValidPatternAddition(pat, angle);
     }
 
-    private void drawLine(DrawContext ctx, HexCoord start, HexCoord end) {
+    private void drawLine(GuiGraphics ctx, HexCoord start, HexCoord end) {
         var startpx = castref.coordToPx(start);
         var endpx = castref.coordToPx(end);
         var dx = endpx.x - startpx.x;
@@ -273,45 +272,45 @@ public final class KeyboardDrawing extends DrawState {
         }
     }
 
-    public static void render(DrawContext ctx, int mx, int y, List<HexAngle> sig,
+    public static void render(GuiGraphics ctx, int mx, int y, List<HexAngle> sig,
             boolean failed, HexcessibleConfig.Tooltip tooltip, int queued) {
-        var tr = MinecraftClient.getInstance().textRenderer;
+        var tr = Minecraft.getInstance().font;
         if (sig.isEmpty() || !tooltip.visible()) {
             if (failed)
-                ctx.drawTooltip(tr, Text.translatable("hexcessible.no_space")
-                        .formatted(Formatting.RED), mx, y);
+                ctx.renderTooltip(tr, Component.translatable("hexcessible.no_space")
+                        .withStyle(ChatFormatting.RED), mx, y);
             return;
         }
 
-        var text = Text.literal(Utils.angle(sig, Hexcessible.cfg().uppercaseSig));
-        ctx.drawTooltip(tr, text, mx, y);
+        var text = Component.literal(Utils.angle(sig, Hexcessible.cfg().uppercaseSig));
+        ctx.renderTooltip(tr, text, mx, y);
         y += 17;
 
         if (failed) {
-            ctx.drawTooltip(tr, Text.translatable("hexcessible.no_space")
-                    .formatted(Formatting.RED), mx, y);
+            ctx.renderTooltip(tr, Component.translatable("hexcessible.no_space")
+                    .withStyle(ChatFormatting.RED), mx, y);
             y += 17;
         }
 
         if (queued > 0) {
-            ctx.drawTooltip(tr, Text.translatable("hexcessible.count_queued",
-                    queued).formatted(Formatting.YELLOW), mx, y);
+            ctx.renderTooltip(tr, Component.translatable("hexcessible.count_queued",
+                    queued).withStyle(ChatFormatting.YELLOW), mx, y);
             y += 17;
         }
 
         var entry = PatternEntries.INSTANCE.getFromSig(sig);
         if (entry == null || !tooltip.descriptive())
             return;
-        var subtext = new ArrayList<Text>();
-        subtext.add(Text.literal(entry.toString()).formatted(Formatting.BLUE));
+        var subtext = new ArrayList<Component>();
+        subtext.add(Component.literal(entry.toString()).withStyle(ChatFormatting.BLUE));
         for (var impl : entry.impls())
-            subtext.add(Text.literal(impl.getArgs()).formatted(Formatting.DARK_GRAY));
-        ctx.drawTooltip(tr, subtext, mx, y);
+            subtext.add(Component.literal(impl.getArgs()).withStyle(ChatFormatting.DARK_GRAY));
+        ctx.renderComponentTooltip(tr, subtext, mx, y);
     }
 
     @Override
     public void onMouseMove(double mx, double my) {
-        origin = castref.pxToCoord(new Vec2f((int) mx, (int) my));
+        origin = castref.pxToCoord(new Vec2((int) mx, (int) my));
         recalculateNewAll();
     }
 

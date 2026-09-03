@@ -18,10 +18,10 @@ import dev.tizu.hexcessible.drawstate.KeyboardDrawing;
 import dev.tizu.hexcessible.drawstate.MouseDrawing;
 import dev.tizu.hexcessible.entries.BookEntries;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.math.Vec2f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.phys.Vec2;
 import vazkii.patchouli.api.PatchouliAPI;
 import vazkii.patchouli.client.book.gui.GuiBook;
 
@@ -30,21 +30,21 @@ public class KeyDocsScreenMixin {
     @Unique
     private static GuiSpellcasting staffScreen;
     @Unique
-    private static Vec2f mousePos = new Vec2f(0, 0);
+    private static Vec2 mousePos = new Vec2(0, 0);
 
-    @Inject(method = "close", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onClose", at = @At("HEAD"), cancellable = true)
     void returnToStaff(CallbackInfo ci) {
         if ((Screen) (Object) this instanceof GuiBook && staffScreen != null) {
-            MinecraftClient.getInstance().setScreen(staffScreen);
+            Minecraft.getInstance().setScreen(staffScreen);
             staffScreen = null;
             ci.cancel();
         }
     }
 
     @Inject(method = "render", at = @At("HEAD"))
-    void render(DrawContext ctx, int mx, int my, float delta, CallbackInfo info) {
+    void render(GuiGraphics ctx, int mx, int my, float delta, CallbackInfo info) {
         if ((Object) this instanceof DrawStateMixinAccessor)
-            mousePos = new Vec2f((float) mx, (float) my);
+            mousePos = new Vec2((float) mx, (float) my);
     }
 
     @Inject(method = "keyPressed", at = @At("HEAD"), order = 999)

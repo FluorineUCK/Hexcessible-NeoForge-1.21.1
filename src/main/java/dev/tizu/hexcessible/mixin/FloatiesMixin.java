@@ -4,11 +4,10 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import at.petrak.hexcasting.api.client.ClientRenderHelper;
 import dev.tizu.hexcessible.Hexcessible;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 
 @Mixin(ClientRenderHelper.class)
 public class FloatiesMixin {
@@ -16,7 +15,7 @@ public class FloatiesMixin {
     }
 
     @WrapMethod(method = "renderCastingStack", remap = false)
-    private static void renderCastingStack(MatrixStack ps, PlayerEntity player, float pticks,
+    private static void renderCastingStack(PoseStack ps, Player player, float pticks,
             Operation<Void> original) {
         if (!Hexcessible.cfg().hideFloaties)
             original.call(ps, player, pticks);

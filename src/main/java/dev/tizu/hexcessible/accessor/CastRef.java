@@ -5,7 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.Nullable;
 
 import at.petrak.hexcasting.api.casting.eval.ResolvedPattern;
@@ -18,20 +19,18 @@ import at.petrak.hexcasting.client.gui.GuiSpellcasting;
 import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternC2S;
 import at.petrak.hexcasting.xplat.IClientXplatAbstractions;
 import dev.tizu.hexcessible.Utils;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.Vec2f;
 
 public class CastRef {
     private final GuiSpellcasting castui;
     private final CastingInterfaceAccessor accessor;
-    private final Hand handOpenedWith;
+    private final InteractionHand handOpenedWith;
     private final List<ResolvedPattern> patterns;
     private final Set<HexCoord> usedSpots;
     private final Runnable stopDrawing;
     private boolean canTypeHere = true;
 
     public CastRef(GuiSpellcasting castui, CastingInterfaceAccessor accessor,
-            Hand handOpenedWith, List<ResolvedPattern> patterns,
+            InteractionHand handOpenedWith, List<ResolvedPattern> patterns,
             Set<HexCoord> usedSpots, Runnable stopDrawing) {
         this.castui = castui;
         this.accessor = accessor;
@@ -41,11 +40,11 @@ public class CastRef {
         this.stopDrawing = stopDrawing;
     }
 
-    public HexCoord pxToCoord(Vec2f px) {
+    public HexCoord pxToCoord(Vec2 px) {
         return castui.pxToCoord(px);
     }
 
-    public Vec2f coordToPx(HexCoord coord) {
+    public Vec2 coordToPx(HexCoord coord) {
         return castui.coordToPx(coord);
     }
 
@@ -54,7 +53,7 @@ public class CastRef {
     }
 
     public void closeUI() {
-        castui.close();
+        castui.onClose();
     }
 
     public boolean canTypeHere() {
@@ -154,7 +153,7 @@ public class CastRef {
     }
 
     public @Nullable HexPattern getPatternAt(int x, int y) {
-        var coord = pxToCoord(new Vec2f(x, y));
+        var coord = pxToCoord(new Vec2(x, y));
         return patterns.stream()
                 .filter(p -> p.getOrigin().equals(coord)
                         || p.getPattern().positions().stream()

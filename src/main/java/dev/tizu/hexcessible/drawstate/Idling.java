@@ -3,7 +3,8 @@ package dev.tizu.hexcessible.drawstate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -12,15 +13,13 @@ import dev.tizu.hexcessible.Hexcessible;
 import dev.tizu.hexcessible.Utils;
 import dev.tizu.hexcessible.accessor.CastRef;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.math.Vec2f;
 
 public final class Idling extends DrawState {
 
     private @Nullable HexPattern hoveredOver;
     private @Nullable PatternEntries.Entry hoveredOverEntry;
     private long hoveredOverStart = 0;
-    private Vec2f mousePos = new Vec2f(0, 0);
+    private Vec2 mousePos = new Vec2(0, 0);
 
     public Idling(CastRef castref) {
         super(castref);
@@ -51,8 +50,8 @@ public final class Idling extends DrawState {
     }
 
     @Override
-    public void onRender(DrawContext ctx, int mx, int my) {
-        mousePos = new Vec2f((float) mx, (float) my);
+    public void onRender(GuiGraphics ctx, int mx, int my) {
+        mousePos = new Vec2((float) mx, (float) my);
         var hovered = castref.getPatternAt(mx, my);
         if (hovered == null) {
             hoveredOver = null;

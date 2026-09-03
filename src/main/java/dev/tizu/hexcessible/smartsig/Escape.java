@@ -1,7 +1,7 @@
 package dev.tizu.hexcessible.smartsig;
 
 import java.util.List;
-
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import at.petrak.hexcasting.api.casting.math.HexAngle;
@@ -9,7 +9,6 @@ import at.petrak.hexcasting.api.casting.math.HexDir;
 import dev.tizu.hexcessible.Utils;
 import dev.tizu.hexcessible.entries.BookEntries;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.minecraft.text.Text;
 
 public class Escape implements SmartSig {
     public static final List<PatternEntries.Entry> ALL = List.of(
@@ -21,8 +20,8 @@ public class Escape implements SmartSig {
     private static PatternEntries.Entry make(String id, HexDir dir, String sig,
             String desc, String nameadd) {
         var doc = new BookEntries.Entry("hexcessible:escape/" + id, null,
-                Text.translatable(desc).getString(), "", "", 0);
-        var name = Text.translatable("hexcasting.rawhook.hexcasting:" + id)
+                Component.translatable(desc).getString(), "", "", 0);
+        var name = Component.translatable("hexcasting.rawhook.hexcasting:" + id)
                 .getString() + nameadd;
         return new PatternEntries.Entry("hexcessible:" + id, name,
                 () -> false, dir, List.of(Utils.angle(sig)), List.of(doc), 0);

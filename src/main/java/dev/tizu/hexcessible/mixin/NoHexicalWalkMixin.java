@@ -1,7 +1,8 @@
 package dev.tizu.hexcessible.mixin;
 
 import java.util.List;
-
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,10 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import at.petrak.hexcasting.client.gui.GuiSpellcasting;
 import dev.tizu.hexcessible.Hexcessible;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
 
-@Mixin(KeyBinding.class)
+@Mixin(KeyMapping.class)
 public class NoHexicalWalkMixin {
     @Unique
     private static final List<String> DISALLOWED = List.of("key.forward",
@@ -23,15 +22,15 @@ public class NoHexicalWalkMixin {
     // This is sort of a hack, but it seems to work reasonably well. There might
     // be some better way to do this, but until someone comes up to me telling
     // me how shit this is, I'm just going to leave it like this.
-    @Inject(method = "setPressed", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "setDown", at = @At("HEAD"), cancellable = true)
     private void blockPressedWhileCasting(boolean pressed, CallbackInfo ci) {
         if (!Hexcessible.cfg().noHexicalWalk)
             return;
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (!(client.currentScreen instanceof GuiSpellcasting))
+        Minecraft client = Minecraft.getInstance();
+        if (!(client.screen instanceof GuiSpellcasting))
             return;
-        KeyBinding self = (KeyBinding) (Object) this;
-        String id = self.getTranslationKey();
+        KeyMapping self = (KeyMapping) (Object) this;
+        String id = self.getName();
         if (DISALLOWED.contains(id) && pressed)
             ci.cancel();
     }

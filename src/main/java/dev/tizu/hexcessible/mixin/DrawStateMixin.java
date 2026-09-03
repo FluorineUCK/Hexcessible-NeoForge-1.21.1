@@ -2,7 +2,12 @@ package dev.tizu.hexcessible.mixin;
 
 import java.util.List;
 import java.util.Set;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,12 +30,6 @@ import dev.tizu.hexcessible.accessor.CastingInterfaceAccessor;
 import dev.tizu.hexcessible.accessor.DrawStateMixinAccessor;
 import dev.tizu.hexcessible.drawstate.DrawState;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.Vec2f;
 
 @Mixin(GuiSpellcasting.class)
 public class DrawStateMixin implements DrawStateMixinAccessor {
@@ -42,7 +41,7 @@ public class DrawStateMixin implements DrawStateMixinAccessor {
     private boolean noActing;
 
     @Shadow(remap = false)
-    private Hand handOpenedWith;
+    private InteractionHand handOpenedWith;
     @Shadow(remap = false)
     private List<ResolvedPattern> patterns;
     @Shadow(remap = false)
@@ -61,7 +60,7 @@ public class DrawStateMixin implements DrawStateMixinAccessor {
         castref = new CastRef(castui, accessor, handOpenedWith, patterns,
                 usedSpots, this::hexcessible$drawEnd);
         state = DrawState.getNew(castref);
-        noActing = !(MinecraftClient.getInstance().currentScreen instanceof GuiSpellcasting);
+        noActing = !(Minecraft.getInstance().screen instanceof GuiSpellcasting);
     }
 
     @Inject(at = @At("HEAD"), method = "mouseMoved")
@@ -82,10 +81,10 @@ public class DrawStateMixin implements DrawStateMixinAccessor {
     }
 
     @Inject(at = @At("RETURN"), method = "render")
-    public void render(DrawContext ctx, int mouseX, int mouseY, float delta,
+    public void render(GuiGraphics ctx, int mouseX, int mouseY, float delta,
             CallbackInfo info) {
         if (!noActing && DrawState.shouldClose(state)) {
-            ((GuiSpellcasting) (Object) this).close();
+            ((GuiSpellcasting) (Object) this).onClose();
             return;
         }
 
@@ -107,13 +106,13 @@ public class DrawStateMixin implements DrawStateMixinAccessor {
     }
 
     @Unique
-    private void renderDebug(DrawContext ctx, String text, int i) {
-        ctx.drawTextWithShadow(MinecraftClient.getInstance().textRenderer,
+    private void renderDebug(GuiGraphics ctx, String text, int i) {
+        ctx.drawString(Minecraft.getInstance().font,
                 text, 5, 5 + (i * 10), 0xFFFFFF);
     }
 
     @Unique
-    private void renderHints(DrawContext ctx) {
+    private void renderHints(GuiGraphics ctx) {
         if (!Hexcessible.cfg().shortcutHints)
             return;
         var hints = state.getHints();
@@ -121,14 +120,14 @@ public class DrawStateMixin implements DrawStateMixinAccessor {
             return;
 
         var x = 6;
-        var y = ctx.getScaledWindowHeight() - 16;
+        var y = ctx.guiHeight() - 16;
         for (var hint : hints.entrySet()) {
-            var text = Text.empty()
-                    .append(Text.literal(hint.getKey() + " ")
-                            .formatted(Formatting.GRAY))
-                    .append(Text.translatable("hexcessible.hint." + hint.getValue())
-                            .formatted(Formatting.DARK_GRAY));
-            ctx.drawTextWithShadow(MinecraftClient.getInstance().textRenderer,
+            var text = Component.empty()
+                    .append(Component.literal(hint.getKey() + " ")
+                            .withStyle(ChatFormatting.GRAY))
+                    .append(Component.translatable("hexcessible.hint." + hint.getValue())
+                            .withStyle(ChatFormatting.DARK_GRAY));
+            ctx.drawString(Minecraft.getInstance().font,
                     text, x, y, 0xFFFFFF);
             y -= 10;
         }
@@ -148,7 +147,7 @@ public class DrawStateMixin implements DrawStateMixinAccessor {
 
     @Override
     public @Nullable HexPattern getPatternAt(int x, int y) {
-        var coord = ((GuiSpellcasting) (Object) this).pxToCoord(new Vec2f(x, y));
+        var coord = ((GuiSpellcasting) (Object) this).pxToCoord(new Vec2(x, y));
         return patterns.stream()
                 .filter(p -> p.getOrigin().equals(coord)
                         || p.getPattern().positions().stream()

@@ -4,16 +4,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 import dev.tizu.hexcessible.Hexcessible;
 import dev.tizu.hexcessible.accessor.CastRef;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 public final class AliasChanging extends DrawState {
     private String alias;
@@ -30,24 +29,24 @@ public final class AliasChanging extends DrawState {
     }
 
     @Override
-    public void onRender(DrawContext ctx, int mx, int my) {
-        var tr = MinecraftClient.getInstance().textRenderer;
+    public void onRender(GuiGraphics ctx, int mx, int my) {
+        var tr = Minecraft.getInstance().font;
 
-        var x = ctx.getScaledWindowWidth() / 3;
-        var y = ctx.getScaledWindowHeight() / 2;
+        var x = ctx.guiWidth() / 3;
+        var y = ctx.guiHeight() / 2;
 
         var originalStr = sig + " " + original;
         var originalT = alias.isBlank()
-                ? Text.literal(originalStr).formatted(Formatting.BLUE)
-                : Text.literal(originalStr).formatted(Formatting.GRAY);
-        ctx.drawTooltip(tr, originalT, x, y - 1);
+                ? Component.literal(originalStr).withStyle(ChatFormatting.BLUE)
+                : Component.literal(originalStr).withStyle(ChatFormatting.GRAY);
+        ctx.renderTooltip(tr, originalT, x, y - 1);
 
         var aliasT = alias.isBlank()
-                ? Text.translatable("hexcessible.start_typing.alias")
-                        .formatted(Formatting.DARK_GRAY)
-                : Text.literal(alias)
-                        .formatted(Formatting.BLUE);
-        ctx.drawTooltip(tr, aliasT, x, y + 16);
+                ? Component.translatable("hexcessible.start_typing.alias")
+                        .withStyle(ChatFormatting.DARK_GRAY)
+                : Component.literal(alias)
+                        .withStyle(ChatFormatting.BLUE);
+        ctx.renderTooltip(tr, aliasT, x, y + 16);
     }
 
     @Override

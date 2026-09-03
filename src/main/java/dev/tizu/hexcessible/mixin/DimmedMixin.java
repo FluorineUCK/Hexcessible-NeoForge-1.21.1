@@ -2,7 +2,7 @@ package dev.tizu.hexcessible.mixin;
 
 import at.petrak.hexcasting.client.gui.GuiSpellcasting;
 import dev.tizu.hexcessible.Hexcessible;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -13,7 +13,7 @@ public class DimmedMixin {
 
 	@Inject(at = @At("HEAD"), method = "render")
 	public void render(
-		DrawContext ctx,
+		GuiGraphics ctx,
 		int mouseX,
 		int mouseY,
 		float delta,
@@ -22,8 +22,8 @@ public class DimmedMixin {
 		if (Hexcessible.cfg().dimmed) ctx.fill(
 			0,
 			0,
-			ctx.getScaledWindowWidth(),
-			ctx.getScaledWindowHeight(),
+			ctx.guiWidth(),
+			ctx.guiHeight(),
 			0x80000000
 		);
 	}

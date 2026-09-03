@@ -10,8 +10,8 @@ import at.petrak.hexcasting.api.casting.math.HexDir;
 import dev.tizu.hexcessible.Utils;
 import dev.tizu.hexcessible.entries.BookEntries;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.text.Text;
+import net.neoforged.fml.ModList;
+import net.minecraft.network.chat.Component;
 
 // FIXME: this uses the existing Number smartsig as a backend and simply casts
 // the result to a long. This is not ideal, and should eventually be replaced
@@ -22,7 +22,7 @@ public class ComplexhexLong implements SmartSig.Conditional {
 
     @Override
     public boolean enabled() {
-        return FabricLoader.getInstance().isModLoaded("complexhex");
+        return ModList.get().isLoaded("complexhex");
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ComplexhexLong implements SmartSig.Conditional {
         if (addPurification)
             sig.add(Utils.angle("wawdedwaaw"));
 
-        var i18nkey = Text.translatable("hexcasting.special.complexhex:long",
+        var i18nkey = Component.translatable("hexcasting.special.complexhex:long",
                 target).getString();
         var doc = new BookEntries.Entry("hexcessible:long", null,
                 "(experimental²)", "", String.valueOf(target), 0);

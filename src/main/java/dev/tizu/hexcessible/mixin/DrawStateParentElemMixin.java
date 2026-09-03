@@ -6,9 +6,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import dev.tizu.hexcessible.accessor.DrawStateMixinAccessor;
-import net.minecraft.client.gui.ParentElement;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
 
-@Mixin(ParentElement.class)
+@Mixin(ContainerEventHandler.class)
 public abstract interface DrawStateParentElemMixin {
 
     @Inject(method = "charTyped", at = @At("HEAD"), cancellable = true)

@@ -2,14 +2,13 @@ package dev.tizu.hexcessible.smartsig;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import at.petrak.hexcasting.api.casting.math.HexAngle;
 import at.petrak.hexcasting.api.casting.math.HexDir;
 import dev.tizu.hexcessible.entries.BookEntries;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.minecraft.text.Text;
 
 public class Bookkeeper implements SmartSig {
     // For refernece: In this class, true = drop, false = keep
@@ -102,7 +101,7 @@ public class Bookkeeper implements SmartSig {
         for (var i = 0; i < target.size(); i++)
             representation.append(Boolean.TRUE.equals(target.get(i)) ? "v" : "-");
 
-        var i18nkey = Text.translatable("hexcasting.special.hexcasting:mask",
+        var i18nkey = Component.translatable("hexcasting.special.hexcasting:mask",
                 representation).getString();
         var doc = new BookEntries.Entry("hexcessible:bookkeeper", null,
                 getDesc(target), in.toString(), out.toString(), 0);
@@ -127,12 +126,12 @@ public class Bookkeeper implements SmartSig {
             }
 
         var str = new StringBuilder();
-        str.append(Text.translatable("hexcessible.smartsig.bookkeeper.prefix")
+        str.append(Component.translatable("hexcessible.smartsig.bookkeeper.prefix")
                 .getString());
 
         for (var i = 0; i < counts.size(); i++) {
             if (i != 0)
-                str.append(Text.translatable("hexcessible.smartsig.bookkeeper.join")
+                str.append(Component.translatable("hexcessible.smartsig.bookkeeper.join")
                         .getString());
 
             currentIsDrop = i % 2 == 0 ? firstIsDrop : !firstIsDrop;
@@ -141,10 +140,10 @@ public class Bookkeeper implements SmartSig {
                     : "hexcessible.smartsig.bookkeeper.keep";
             if (count == 1)
                 key += "1";
-            str.append(Text.translatable(key, count).getString());
+            str.append(Component.translatable(key, count).getString());
         }
 
-        str.append(Text.translatable("hexcessible.smartsig.bookkeeper.suffix")
+        str.append(Component.translatable("hexcessible.smartsig.bookkeeper.suffix")
                 .getString());
 
         return str.toString();

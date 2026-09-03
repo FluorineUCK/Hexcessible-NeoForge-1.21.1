@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import at.petrak.hexcasting.api.casting.math.HexAngle;
@@ -13,7 +13,6 @@ import dev.tizu.hexcessible.Hexcessible;
 import dev.tizu.hexcessible.Utils;
 import dev.tizu.hexcessible.entries.BookEntries;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.minecraft.text.Text;
 
 public class Number implements SmartSig {
     private static final DecimalFormat DF = new DecimalFormat("#.##");
@@ -54,7 +53,7 @@ public class Number implements SmartSig {
 
     private PatternEntries.Entry getEntry(float target) {
         var sig = getFor(target);
-        var i18nkey = Text.translatable("hexcasting.special.hexcasting:number",
+        var i18nkey = Component.translatable("hexcasting.special.hexcasting:number",
                 target).getString();
         var doc = new BookEntries.Entry("hexcessible:number", null,
                 "(experimental)", "", String.valueOf(target), 0);

@@ -9,14 +9,14 @@ import at.petrak.hexcasting.api.casting.math.HexDir;
 import dev.tizu.hexcessible.Utils;
 import dev.tizu.hexcessible.entries.BookEntries;
 import dev.tizu.hexcessible.entries.PatternEntries;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.text.Text;
+import net.neoforged.fml.ModList;
+import net.minecraft.network.chat.Component;
 
 public class HexThingsPatience implements SmartSig.Conditional {
 
     @Override
     public boolean enabled() {
-        return FabricLoader.getInstance().isModLoaded("hexthings");
+        return ModList.get().isLoaded("hexthings");
     }
 
     @Override
@@ -52,8 +52,8 @@ public class HexThingsPatience implements SmartSig.Conditional {
         var patternStr = "dade" + tail;
 
         var angles = Utils.angle(patternStr);
-        var i18nkey = Text.translatable("hexcasting.special.hexthings:noop").getString();
-        var desc = Text.translatable("hexthings.book.patterns.spells.utils.noop").getString();
+        var i18nkey = Component.translatable("hexcasting.special.hexthings:noop").getString();
+        var desc = Component.translatable("hexthings.book.patterns.spells.utils.noop").getString();
 
         BookEntries.Entry doc = new BookEntries.Entry("hexcessible:noop_patience/" + tail,
                 null, desc, "", "", 0);
